@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Pipeline - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .value {
+            color: #333;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .change {
+            color: #10b981;
+            font-size: 14px;
+        }
+        
+        .action-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .action-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+        }
+        
+        .campaigns-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .campaigns-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .campaign-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .campaign-card {
+            border: 2px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .campaign-card:hover {
+            border-color: #667eea;
+        }
+        
+        .campaign-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .campaign-card .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .campaign-metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .metric {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .metric .label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .metric .value {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .persona-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        
+        .persona-founders {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .persona-creatives {
+            background: #fce7f3;
+            color: #9f1239;
+        }
+        
+        .persona-operations {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Content Pipeline Dashboard</h1>
+            <p>Monitor campaigns, generate content, and analyze performance</p>
+        </div>
+        
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <h3>Total Campaigns</h3>
+                <div class="value" id="total-campaigns">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average Open Rate</h3>
+                <div class="value" id="avg-open-rate">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average Click Rate</h3>
+                <div class="value" id="avg-click-rate">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Sends</h3>
+                <div class="value" id="total-sends">-</div>
+            </div>
+        </div>
+        
+        <div class="action-section">
+            <h2>Generate New Content</h2>
+            <div class="success-message" id="success-message"></div>
+            <div class="error-message" id="error-message"></div>
+            <div class="input-group">
+                <input type="text" id="topic-input" placeholder="Enter blog topic (e.g., 'AI automation for creative workflows')">
+                <button class="btn btn-primary" onclick="runPipeline()">Run Full Pipeline</button>
+                <button class="btn btn-secondary" onclick="generateContent()">Generate Only</button>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                Full Pipeline: Generate content → Distribute → Analyze | Generate Only: Create content without sending
+            </p>
+        </div>
+        
+        <div class="campaigns-section">
+            <h2>Recent Campaigns</h2>
+            <div id="campaigns-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading campaigns...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load initial data
+        window.addEventListener('DOMContentLoaded', () => {
+            loadOverview();
+            loadCampaigns();
+        });
+        
+        async function loadOverview() {
+            try {
+                const response = await fetch('/api/analytics/overview');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('total-campaigns').textContent = data.total_campaigns || 0;
+                    document.getElementById('avg-open-rate').textContent = 
+                        data.avg_open_rate ? (data.avg_open_rate * 100).toFixed(1) + '%' : '-';
+                    document.getElementById('avg-click-rate').textContent = 
+                        data.avg_click_rate ? (data.avg_click_rate * 100).toFixed(1) + '%' : '-';
+                    document.getElementById('total-sends').textContent = 
+                        data.total_sends ? data.total_sends.toLocaleString() : '-';
+                }
+            } catch (error) {
+                console.error('Error loading overview:', error);
+            }
+        }
+        
+        async function loadCampaigns() {
+            try {
+                const response = await fetch('/api/campaigns');
+                const data = await response.json();
+                
+                const container = document.getElementById('campaigns-container');
+                
+                if (data.status === 'success' && data.campaigns.length > 0) {
+                    container.innerHTML = '<div class="campaign-list"></div>';
+                    const list = container.querySelector('.campaign-list');
+                    
+                    // Group campaigns by content
+                    const grouped = {};
+                    data.campaigns.forEach(campaign => {
+                        const key = campaign.blog_title;
+                        if (!grouped[key]) grouped[key] = [];
+                        grouped[key].push(campaign);
+                    });
+                    
+                    // Display grouped campaigns
+                    Object.entries(grouped).slice(0, 5).forEach(([title, campaigns]) => {
+                        const card = document.createElement('div');
+                        card.className = 'campaign-card';
+                        card.innerHTML = `
+                            <h3>${title}</h3>
+                            <div class="meta">
+                                ${campaigns[0].topic} • Sent: ${new Date(campaigns[0].send_date).toLocaleDateString()}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                ${campaigns.map(c => `
+                                    <span class="persona-badge persona-${c.campaign_name.includes('founders') ? 'founders' : 
+                                        c.campaign_name.includes('creatives') ? 'creatives' : 'operations'}">
+                                        ${c.campaign_name.split('-').pop().trim()}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<div class="loading">No campaigns yet. Run the pipeline to create your first campaign!</div>';
+                }
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+                document.getElementById('campaigns-container').innerHTML = 
+                    '<div class="loading">Error loading campaigns</div>';
+            }
+        }
+        
+        async function runPipeline() {
+            const topic = document.getElementById('topic-input').value.trim();
+            
+            if (!topic) {
+                showError('Please enter a topic');
+                return;
+            }
+            
+            showMessage('Running pipeline... This may take a minute.', 'info');
+            
+            try {
+                const response = await fetch('/api/pipeline/run', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({topic})
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showSuccess(`Pipeline complete! Created: "${data.results.blog_title}"`);
+                    document.getElementById('topic-input').value = '';
+                    
+                    // Reload data
+                    setTimeout(() => {
+                        loadOverview();
+                        loadCampaigns();
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Pipeline failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to run pipeline: ' + error.message);
+            }
+        }
+        
+        async function generateContent() {
+            const topic = document.getElementById('topic-input').value.trim();
+            
+            if (!topic) {
+                showError('Please enter a topic');
+                return;
+            }
+            
+            showMessage('Generating content...', 'info');
+            
+            try {
+                const response = await fetch('/api/pipeline/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({topic})
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showSuccess(`Content generated! Title: "${data.blog.title}"`);
+                    document.getElementById('topic-input').value = '';
+                } else {
+                    showError(data.message || 'Content generation failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to generate content: ' + error.message);
+            }
+        }
+        
+        function showSuccess(message) {
+            const el = document.getElementById('success-message');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+        
+        function showError(message) {
+            const el = document.getElementById('error-message');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+        
+        function showMessage(message, type) {
+            if (type === 'info') {
+                const el = document.getElementById('success-message');
+                el.textContent = message;
+                el.style.display = 'block';
+                el.style.background = '#dbeafe';
+                el.style.color = '#1e40af';
+            }
+        }
+    </script>
+</body>
+</html>
+
