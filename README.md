@@ -2,10 +2,6 @@
 
 An intelligent, automated marketing pipeline that generates, distributes, and optimizes blog and newsletter content using AI and CRM integrations.
 
-Built for: Palona AI - Content & Growth Analyst Take-Home Assignment  
-Author: Dillon Tadeo
-Date: October 2025
-
 ---
 
 ## Overview
